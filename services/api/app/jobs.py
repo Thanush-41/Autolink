@@ -48,7 +48,8 @@ def run_scheduling(organization_name: str, run_id: str) -> None:
 
 
 def run_scheduled_publish(post_id: str) -> None:
-    """Executed by the RQ scheduler at the user-chosen publish time."""
+    """Publishes a single scheduled draft. Used both by the optional RQ worker
+    (if you run one locally) and by process_due_scheduled_posts below."""
     db = get_database()
     draft = db.post_drafts.find_one({"_id": post_id})
     if not draft or draft.get("status") == "published":
@@ -57,3 +58,23 @@ def run_scheduled_publish(post_id: str) -> None:
         publish_to_linkedin(db, draft)
     except Exception as exc:  # noqa: BLE001 - record the failure instead of losing it silently
         db.post_drafts.update_one({"_id": post_id}, {"$set": {"status": "publish_failed", "publish_error": str(exc)}})
+
+
+def process_due_scheduled_posts() -> list[dict]:
+    """Finds every draft whose scheduled_for time has passed and publishes it.
+    Designed to be called by a cheap external trigger (e.g. a free GitHub
+    Actions cron hitting POST /posts/process-scheduled every few minutes)
+    instead of requiring an always-on worker process."""
+    db = get_database()
+    now = datetime.utcnow()
+    due_drafts = list(db.post_drafts.find({"status": "scheduled", "scheduled_for": {"$lte": now}}))
+
+    results = []
+    for draft in due_drafts:
+        try:
+            urn = publish_to_linkedin(db, draft)
+            results.append({"post_id": draft["_id"], "status": "published", "linkedin_post_urn": urn})
+        except Exception as exc:  # noqa: BLE001 - keep processing remaining posts
+            db.post_drafts.update_one({"_id": draft["_id"]}, {"$set": {"status": "publish_failed", "publish_error": str(exc)}})
+            results.append({"post_id": draft["_id"], "status": "publish_failed", "error": str(exc)})
+    return results

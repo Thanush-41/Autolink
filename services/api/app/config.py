@@ -5,9 +5,20 @@ import os
 load_dotenv()
 
 
+def _resolve_mongo_url() -> str:
+    # On Render, MONGO_HOST/MONGO_PORT come from `fromService` references to the
+    # private Mongo service (Render doesn't support string interpolation in
+    # render.yaml, so the URL is built here instead). Falls back to MONGODB_URL
+    # for local dev / docker-compose.
+    mongo_host = os.getenv("MONGO_HOST")
+    if mongo_host:
+        return f"mongodb://{mongo_host}:{os.getenv('MONGO_PORT', '27017')}"
+    return os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+
+
 class Settings(BaseModel):
     app_env: str = os.getenv("APP_ENV", "development")
-    mongo_url: str = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+    mongo_url: str = _resolve_mongo_url()
     mongo_db: str = os.getenv("MONGODB_DB", "autolink")
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 

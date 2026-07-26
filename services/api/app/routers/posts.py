@@ -2,11 +2,10 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from app.db import get_db
-from app.jobs import run_scheduled_publish
+from app.jobs import process_due_scheduled_posts
 from app.linkedin_client import get_connected_account, publish_to_linkedin, upload_image
 from app.models import post_draft_document
 from app.orchestrator import enhance_post_content
-from app.queue import content_queue
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -69,12 +68,20 @@ async def create_post(
         draft["status"] = "scheduled"
         draft["scheduled_for"] = publish_dt
         db.post_drafts.insert_one(draft)
-        content_queue.enqueue_at(publish_dt, run_scheduled_publish, draft["_id"])
         return {"post_id": draft["_id"], "status": "scheduled", "scheduled_for": publish_dt.isoformat()}
 
     db.post_drafts.insert_one(draft)
     linkedin_post_urn = publish_to_linkedin(db, draft)
     return {"post_id": draft["_id"], "status": "published", "linkedin_post_urn": linkedin_post_urn}
+
+
+@router.post("/process-scheduled")
+def process_scheduled(db=Depends(get_db)):
+    """Publishes any drafts whose scheduled_for time has passed. Call this
+    periodically from a free external trigger (e.g. a GitHub Actions cron)
+    since this deployment has no always-on worker process."""
+    results = process_due_scheduled_posts()
+    return {"processed": len(results), "results": results}
 
 
 @router.post("/{post_id}/publish")

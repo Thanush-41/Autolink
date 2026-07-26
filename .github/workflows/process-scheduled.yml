@@ -1,0 +1,21 @@
+name: Process Scheduled Posts
+
+# Free replacement for a paid always-on worker: calls the API's
+# /posts/process-scheduled endpoint on a timer so posts scheduled for a
+# future time actually get published once that time arrives.
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call process-scheduled endpoint
+        run: |
+          curl -sS -X POST "${{ vars.AUTOLINK_API_URL }}/posts/process-scheduled" \
+            -H "Content-Type: application/json" \
+            --max-time 60 \
+            --fail-with-body || true

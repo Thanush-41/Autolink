@@ -1,0 +1,37 @@
+services:
+  # FastAPI backend - runs on Render's free web service plan.
+  # No worker/Redis/self-hosted Mongo: content generation, scheduling, and
+  # publishing all run synchronously inside API requests. Scheduled posts are
+  # picked up by an external free trigger (see .github/workflows/process-scheduled.yml)
+  # calling POST /posts/process-scheduled every few minutes.
+  - type: web
+    name: autolink-api
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: pip install -r services/api/requirements.txt
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir services/api
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: APP_ENV
+        value: production
+      - key: MONGODB_DB
+        value: autolink
+      - key: MONGODB_URL
+        sync: false
+      - key: APP_SECRET_KEY
+        generateValue: true
+      - key: WEB_APP_URL
+        value: https://web-psi-blue-o30bpk7re5.vercel.app
+      - key: LINKEDIN_REDIRECT_URI
+        value: https://autolink-api.onrender.com/auth/linkedin/callback
+      - key: LINKEDIN_SCOPES
+        value: openid profile email w_member_social
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_API_KEY
+        sync: false
