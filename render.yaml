@@ -26,7 +26,7 @@ services:
       - key: WEB_APP_URL
         value: https://web-psi-blue-o30bpk7re5.vercel.app
       - key: LINKEDIN_REDIRECT_URI
-        value: https://autolink-api.onrender.com/auth/linkedin/callback
+        value: https://autolink-api-1kmw.onrender.com/auth/linkedin/callback
       - key: LINKEDIN_SCOPES
         value: openid profile email w_member_social
       - key: LLM_PROVIDER
