@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:7
+    container_name: autolink-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+  redis:
+    image: redis:7
+    container_name: autolink-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongodata:

@@ -1,0 +1,64 @@
+{
+  "name": "linkedin-growth-vscode",
+  "displayName": "LinkedIn Growth Agent",
+  "description": "Trigger and monitor Autolink agent runs from VS Code",
+  "version": "0.1.0",
+  "publisher": "autolink",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "autolink.connectApi",
+        "title": "Autolink: Connect API"
+      },
+      {
+        "command": "autolink.runStrategy",
+        "title": "Autolink: Run Strategy Agent"
+      },
+      {
+        "command": "autolink.openDashboard",
+        "title": "Autolink: Open Dashboard"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "autolink",
+          "title": "Autolink",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "autolink": [
+        {
+          "id": "autolink.controlCenter",
+          "name": "AI Control Center"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Autolink",
+      "properties": {
+        "autolink.apiBaseUrl": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "Base URL for Autolink API"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.7.2"
+  }
+}

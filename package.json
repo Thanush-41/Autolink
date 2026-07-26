@@ -1,0 +1,21 @@
+{
+  "name": "autolink-agentic-platform",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "extensions/*"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "build:web": "npm --workspace apps/web run build",
+    "dev:extension": "npm --workspace extensions/linkedin-growth-vscode run watch",
+    "build:extension": "npm --workspace extensions/linkedin-growth-vscode run compile",
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:extension\"",
+    "lint": "npm --workspace apps/web run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}

@@ -1,0 +1,22 @@
+# Node
+node_modules/
+.npm/
+.pnpm-store/
+.next/
+out/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# VS Code extension
+*.vsix
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
