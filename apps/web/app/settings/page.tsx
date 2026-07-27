@@ -36,7 +36,7 @@ export default async function SettingsPage({
       )}
 
       <section className="panel p-6 reveal">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             {status.picture ? (
               <Image
@@ -77,7 +77,7 @@ export default async function SettingsPage({
         </div>
 
         {status.connected && !status.can_publish && (
-          <div className="mt-4 flex items-center justify-between rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-800">
+          <div className="mt-4 flex flex-col gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-800 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm">
               This account can&apos;t publish posts yet &mdash; it&apos;s missing the{" "}
               <code className="rounded bg-amber-100 px-1">w_member_social</code> permission. Reconnect to grant
@@ -85,7 +85,7 @@ export default async function SettingsPage({
             </p>
             <a
               href={`${apiUrl}/auth/linkedin/login`}
-              className="ml-4 whitespace-nowrap rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-amber-700"
+              className="whitespace-nowrap rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-amber-700 sm:ml-4"
             >
               Reconnect
             </a>

@@ -22,6 +22,22 @@ function IconSettings() {
   );
 }
 
+function IconMenu() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6h18M3 12h18M3 18h18" />
+    </svg>
+  );
+}
+
+function IconClose() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
 const links = [
   { href: "/", label: "Create Post", icon: IconCreate },
   { href: "/settings", label: "Settings", icon: IconSettings }
@@ -30,6 +46,7 @@ const links = [
 export function Sidebar() {
   const pathname = usePathname();
   const [account, setAccount] = useState<LinkedInStatus | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     getLinkedInStatus()
@@ -37,15 +54,59 @@ export function Sidebar() {
       .catch(() => setAccount({ connected: false }));
   }, [pathname]);
 
+  // Close the mobile drawer whenever the route changes.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   return (
-    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-black/[0.06] bg-white/70 px-4 py-6 backdrop-blur-sm">
-      <div className="mb-8 flex items-center gap-2 px-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink text-sm font-bold text-white">A</div>
-        <div>
-          <p className="text-sm font-bold leading-tight">Autolink</p>
-          <p className="text-[11px] leading-tight text-slate-500">AI Growth Employee</p>
+    <>
+      {/* Mobile top bar - only visible below the md breakpoint */}
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-black/[0.06] bg-white/90 px-4 py-3 backdrop-blur-sm md:hidden">
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Open menu"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-700 hover:bg-black/[0.04]"
+        >
+          <IconMenu />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-ink text-xs font-bold text-white">A</div>
+          <p className="text-sm font-bold">Autolink</p>
         </div>
+        <span className="w-9" />
       </div>
+
+      {/* Backdrop, mobile only, shown while drawer is open */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-64 shrink-0 flex-col border-r border-black/[0.06] bg-white px-4 py-6 transition-transform duration-200 md:sticky md:top-0 md:translate-x-0 md:bg-white/70 md:backdrop-blur-sm ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="mb-8 flex items-center justify-between px-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink text-sm font-bold text-white">A</div>
+            <div>
+              <p className="text-sm font-bold leading-tight">Autolink</p>
+              <p className="text-[11px] leading-tight text-slate-500">AI Growth Employee</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-black/[0.04] md:hidden"
+          >
+            <IconClose />
+          </button>
+        </div>
 
       <nav className="flex flex-1 flex-col gap-1">
         {links.map((link) => {
@@ -92,6 +153,7 @@ export function Sidebar() {
           </div>
         )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

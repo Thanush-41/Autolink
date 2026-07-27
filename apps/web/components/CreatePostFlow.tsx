@@ -59,6 +59,10 @@ export function CreatePostFlow() {
     setCredsError(null);
     try {
       await saveAppCredentials(clientId.trim(), clientSecret.trim());
+      // Clear the secret from memory immediately after it's been sent - it's
+      // never displayed or needed again on the client.
+      setClientId("");
+      setClientSecret("");
       await loadGateState();
     } catch (err) {
       setCredsError(err instanceof Error ? err.message : "Failed to save credentials");
@@ -173,8 +177,8 @@ export function CreatePostFlow() {
           <p className="mb-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-500">Step 2</p>
           <h1 className="mb-2 text-2xl font-bold">Connect Your LinkedIn Account</h1>
           <p className="mb-4 text-sm text-slate-600">
-            Credentials saved for app <strong>{credentials?.client_id}</strong>. Now connect your LinkedIn account to
-            allow publishing.
+            LinkedIn app credentials are saved. Now connect your LinkedIn account to allow
+            publishing.
           </p>
           <a
             href={`${getApiUrl()}/auth/linkedin/login`}
@@ -251,12 +255,12 @@ export function CreatePostFlow() {
             {submitting ? "Working..." : "Publish Now"}
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <input
               type="datetime-local"
               value={scheduleAt}
               onChange={(e) => setScheduleAt(e.target.value)}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="min-w-0 rounded-lg border border-slate-300 px-3 py-2 text-sm"
             />
             <button
               onClick={() => handleSubmit("schedule")}
